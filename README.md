@@ -3,7 +3,7 @@
 ## Description
   Source code for detecting signals from a noisy trace. The method utilizes a feedforward neural network trained with the linear summation of noise and signal on a binary classification task, with targets *signal* and *noise*. Then, using a sliding window technique through the trace of interest, a confidence value (CV) curve is produced where each point, x, on the CV curve gives the confidence level of the x-th window being *signal*. Locations that are deemed by the CV curve as *signal* are then smoothed out from the trace of interest, and the process is repeated until no new signals are found.
   
-  The program was initially designed to detect minature excitatory postsynaptic currents (mEPSCs) from a noisy electrophisiological recording which adopts the shape of a pearson distribution. However, this method can be generalized to detect signals of any shape by training the neural network. More information can be found in the following paper (link to come) 
+  The program was initially designed to detect minature excitatory postsynaptic currents (mEPSCs) from a noisy electrophisiological recording which adopts the shape of a pearson distribution. However, this method can be generalized to detect signals of any shape by training the neural network differently with those shapes. More information can be found in the following paper (link to come) 
 
 ## Toolbox
   Here are the MATLAB toolboxes required for running the program
