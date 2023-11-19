@@ -18,7 +18,7 @@
   
   1. `ROC.m` generates the ROC curve given a trained neural network and a noise trace. We have provided sampled trained network and noise trace in the **pre_trained_networks** and **noise_files** folders. The script is pre-set to use a trained network from the folder, you can change this by changing the path in the script to a trained network of your choice. When executing the script, a window is prompted for you to select a noise trace, you can use the default one we have provided in the folder
      
-  2. `detect_peaks.m` is for detecting signals from a trace of your choice. When executing the sript, a window is prompted for you to select a trace you want to detect the peaks from. It is preset to use a trained network and noise trace provided. You can train your own network using `train_net.m`.
+  2. `detect_peaks.m` is for detecting signals from a trace of your choice. When executing the script, a window is prompted for you to select a trace you want to detect the peaks from. It is preset to use a trained network and noise trace provided. You can train your own network using `train_net.m`.
   
   3. `train_net.m` trains a neural network given a noise trace and a canonical shape of the signal of your choice. The signal must be a n-by-1 array where n is the number of data points that make up the signal peak.
 
