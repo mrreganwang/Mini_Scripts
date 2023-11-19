@@ -14,7 +14,7 @@
   Instructions on installing toolboxes can be found [here](https://www.mathworks.com/help/matlab/matlab_env/get-add-ons.html)
 
 ## Usage
-  We have provided three MATLAB scripts:
+  We have provided four MATLAB scripts:
   
   1. `ROC.m` generates the ROC curve given a trained neural network and a noise trace. We have provided sampled trained network and noise trace in the **pre_trained_networks** and **noise_files** folders. The script is pre-set to use a trained network from the folder, you can change this by changing the path in the script to a trained network of your choice. When executing the script, a window is prompted for you to select a noise trace, you can use the default one we have provided in the folder
      
