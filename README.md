@@ -22,4 +22,4 @@
   
   3. `train_net.m` trains a neural network given a noise trace and a canonical shape of the signal of your choice. The signal must be a n-by-1 array where n is the number of data points that make up the signal peak.
 
-  4. `create_noise.m` creates the noise trace from a signal file of your choice. When executing the script figures containing sections of your trace are prompted, select the region you believe contains **noise only** by left clicking on the start of the region then right click on the end of the region. Continue until you have adequate length of noise trace then press enter to finish
+  4. `create_noise.m` creates the noise trace from a signal file of your choice. When executing the script, figures containing sections of your trace are prompted, select the region you believe contains **noise only** by left clicking on the start of the region then right click on the end of the region. Continue until you have adequate length of noise trace then press enter to finish
