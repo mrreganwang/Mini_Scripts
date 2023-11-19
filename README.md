@@ -5,6 +5,13 @@
   
   The program was initially designed to detect minature excitatory postsynaptic currents (mEPSCs) from a noisy electrophisiological recording which adopts the shape of a pearson distribution. However, this method can be generalized to detect signals of any shape by training the neural network differently with those shapes. More information can be found in the following paper (link to come) 
 
+## Cloning the Repo
+  You can clone the repository by running
+  ```
+  git clone https://github.com/mrreganwang/Mini_Scripts.git
+  ```
+  when you're at your working directory.
+
 ## Toolbox
   Here are the MATLAB toolboxes required for running the program
   
