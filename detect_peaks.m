@@ -4,7 +4,7 @@
 wd = matlab.desktop.editor.getActive;
 wd = fileparts(wd.Filename);
 cd(wd);
-addpath 'helper_functions';
+% addpath 'helper_functions';
 [fileName,filePath] = uigetfile('*.abf');
 
 load([wd,'/pre_trained_networks/trained_net.mat']);     % load trainedNetN
@@ -22,8 +22,8 @@ noiseSD = std(ASnoise);
 %% 3. find peaks
 
 % INITIALIZE
-dataLength = size(AS, 1);       % total length of the trace 
-smoothedTrace = AS;             % smoothed to obtain the new CV every iteration
+dataLength = size(trace, 1);       % total length of the trace 
+smoothedTrace = trace;             % smoothed to obtain the new CV every iteration
 originalTrace = smoothedTrace;  % for plotting purposes
 TN = trainedNetN;               % trained neural network
 pks = 1;                        % store the found peaks in each iteration                                    
@@ -67,6 +67,7 @@ while ~isempty(pks)
     plot(smoothedTrace(71:end));
     plot(10 * CV(1:end));
     scatter(Pk_list, originalTrace(Pk_list+71), 'filled');
+    disp([num2str(numel(pks)), ' peaks are found in iteration ', num2str(i)]);
     i = i + 1;
     numPeakTable = [numPeakTable; [numel(pks), numel(Pk_list)]];
 end

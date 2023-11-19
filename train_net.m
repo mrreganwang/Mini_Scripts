@@ -4,12 +4,13 @@
 wd = matlab.desktop.editor.getActive;
 wd = fileparts(wd.Filename);
 cd(wd);
-addpath 'helper_functions';
+% addpath 'helper_functions';
 
-% prompt window to get the peak shape file. Should be a dx1 array 
+% prompt window to get the peak shape file. Should be a dx1 array stored in
+% a .mat file. Check out 'FastMiniBo.mat' for the format of the signal
 [peakFileName, peakFilePath] = uigetfile('*.mat');
 load([peakFilePath, peakFileName]);
-signal = mini;                                               % set signal to be the variable name that stores the canonical peak shape
+signal = mini;     % set signal to be the variable name that stores the canonical peak shape
 
 load([peakFilePath, peakFileName]);
 
@@ -30,6 +31,7 @@ amp = 5;                            % hyperparameter, mean peak amplitude of the
 % [x] = buildTrainSet(n, SL, amp, 1, signal);     % create n signals with varying width and amplitude
 [x] = MakeMiniMatFS(n, SL, amp, 1);
 
+% [X, Y]=MakeTrainMat(-x,reshape(ASnoise, [1 numel(ASnoise) ]), n, SL);% mini mean=StNset
 [X, Y]=MakeTrainMat(-x,reshape(ASnoise, [1 numel(ASnoise) ]), n, SL);% mini mean=StNset
 
 net0 = patternnet([200 100 100]);   % initialize neural net  
