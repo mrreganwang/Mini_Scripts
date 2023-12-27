@@ -1,8 +1,9 @@
-function [TPR,FDR,FNR,TPLoc,FPLoc,FNLoc,MNpZtrace2,ASmod2,trueLoc,FF] = genROC5b(MMList,NNList,A,minpeakwidth,mpd,SL,AS,trainedNet,D,mode1,mode2,timeBeAf)
+function [TPR,FDR,FNR,TPLoc,FPLoc,FNLoc,MNpZtrace2,ASmod2,trueLoc,FF] = genROC5(MMList,NNList,A,minpeakwidth,mpd,SL,AS,trainedNet,D,mode1,mode2,timeBeAf, signal)
     
     AS = AS - movmean(AS, 10000);       % smooth the noise
     disp(['mini of amp: ', num2str(A)]);
-    [tmp, ~, ~] = MakeMiniMatFS(D, SL, A, mode1); % Pearsondist mean=1
+    % [tmp, ~, ~] = MakeMiniMatFS(D, SL, A, mode1, signal); % Pearsondist mean=1
+    [tmp, ~, ~] = MakeMiniMatFS1(D, SL, A, mode1); % Pearsondist mean=1
     mininewForBench = -tmp;
 
     if mode2 == 1       % equal spacing
@@ -56,9 +57,11 @@ function [TPR,FDR,FNR,TPLoc,FPLoc,FNLoc,MNpZtrace2,ASmod2,trueLoc,FF] = genROC5b
             F = cell(1,100);
             iteration = 0;
             tmp = tmp1;
-            while ~isempty(pks)
+            while ~isempty(pks) && iteration < 5
                 iteration = iteration + 1;
                             % GENERATE CV
+                f = figure;
+                plot(tmp);
                 CVtmpa = TN(MakeCircMatData(SL, tmp));
                 CVtmp = CVtmpa(1,:);
                 CVtmp(CVtmp < 0) = 0;
@@ -82,7 +85,7 @@ function [TPR,FDR,FNR,TPLoc,FPLoc,FNLoc,MNpZtrace2,ASmod2,trueLoc,FF] = genROC5b
                 end
              
                             % PLOT CV ORIGINAL AND REMADE TRACE
-                f = figure; 
+                % f = figure; 
                 f.OuterPosition = [10,900-POS,2200,500 ];
                 POS = POS + 300;
                 plot(tmp1(71:end));
@@ -95,6 +98,7 @@ function [TPR,FDR,FNR,TPLoc,FPLoc,FNLoc,MNpZtrace2,ASmod2,trueLoc,FF] = genROC5b
                 F{iteration} = f;
                 % pause
                 close all
+                disp([num2str(numel(pks)), ' peaks are found in iteration ', num2str(iteration)]);
             end
             F = F(1:iteration);
             

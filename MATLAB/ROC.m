@@ -15,7 +15,7 @@ SL = 300;               % sweeping length. number of data points for one peak
 mpw = 3;                % minimum peak width
 mpd = 4;                % minimum peak distance 
 traceLength = 700000;   % length of trace to create ROC curve
-s = 4;                  % scale for ROC bench mini (to create ROC for minis with avg amplitude of s, 2s, 3s, ...)
+s = 5;                  % scale for ROC bench mini (to create ROC for minis with avg amplitude of s, 2s, 3s, ...)
 numAmp = 1;             % number of amplitudes to test
 timeBeAf = 10*2;        % time window about peak to be considered a true positive
 thresholdList = [0.1,0.2,0.4,0.6,0.7,0.75,0.8,0.85,0.9,0.95,0.99,0.999]; % thresholds to create ROC
@@ -28,6 +28,12 @@ noiseScale = 2.5;       % scaling for the noise trace
 load([filePath, fileName]);
 ASnoise = ASnoise * noiseScale;     
 noiseSD = std(ASnoise);
+
+% prompt window to get the peak shape file. Should be a dx1 array stored in
+% a .mat file. Check out 'FastMiniBo.mat' for the format of the signal
+[peakFileName, peakFilePath] = uigetfile('*.mat');
+load([peakFilePath, peakFileName]);
+signal = mini;     % set signal to be the variable name that stores the canonical peak shape
 
 % create the ROC
 
@@ -54,7 +60,7 @@ for M = 1:numAmp
     Ms = s * (M);
     disp('running genROC loop')
 
-    [TPRt,FDRt,FNRt,TPLoc,FPLoc,FNLoc,signalTrace,noiseTrace,trueLoc,FFt]=genROC5b(smoothingList,thresholdList,Ms,mpw,mpd,SL,ASnoise2,trainedNetN,D,mode1,mode2,timeBeAf); % 1 for CV smoothing
+    [TPRt,FDRt,FNRt,TPLoc,FPLoc,FNLoc,signalTrace,noiseTrace,trueLoc,FFt]=genROC5(smoothingList,thresholdList,Ms,mpw,mpd,SL,ASnoise2,traineVgoodTrainedNet1-100_10000.matdNet,D,mode1,mode2,timeBeAf, signal); % 1 for CV smoothing
 
     TPR{M} = TPRt;
     FDR{M} = FDRt;
@@ -69,7 +75,6 @@ for M = 1:numAmp
 end
 
 %% plot ROC for different smoothing value
-
 f = figure;
 hold on;
 f.Position(1:4) = [150 100 400 400]; 

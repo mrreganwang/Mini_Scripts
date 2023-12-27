@@ -36,8 +36,8 @@ amp = 5;                            % hyperparameter, mean peak amplitude of the
 
 net0 = patternnet([200 100 100]);   % initialize neural net  
 netN = configure(net0,X,Y);
-[trainedNetN,~] = train(netN,X,Y);
+[trainedNet,~] = train(netN,X,Y);
 
 %%
-uisave({'trainedNetN'});
+uisave({'trainedNet'});
 
