@@ -60,7 +60,7 @@ for M = 1:numAmp
     Ms = s * (M);
     disp('running genROC loop')
 
-    [TPRt,FDRt,FNRt,TPLoc,FPLoc,FNLoc,signalTrace,noiseTrace,trueLoc,FFt]=genROC5(smoothingList,thresholdList,Ms,mpw,mpd,SL,ASnoise2,traineVgoodTrainedNet1-100_10000.matdNet,D,mode1,mode2,timeBeAf, signal); % 1 for CV smoothing
+    [TPRt,FDRt,FNRt,TPLoc,FPLoc,FNLoc,signalTrace,noiseTrace,trueLoc,FFt]=genROC5(smoothingList,thresholdList,Ms,mpw,mpd,SL,ASnoise2,trainedNet,D,mode1,mode2,timeBeAf, signal); % 1 for CV smoothing
 
     TPR{M} = TPRt;
     FDR{M} = FDRt;
