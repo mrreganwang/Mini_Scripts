@@ -1,24 +1,29 @@
 function [TPR,FDR,FNR,TPLoc,FPLoc,FNLoc,MNpZtrace2,ASmod2,trueLoc,FF] = genROC5(MMList,NNList,A,minpeakwidth,mpd,SL,AS,trainedNet,D,mode1,mode2,timeBeAf, signal)
     
-    AS = AS - movmean(AS, 10000);       % smooth the noise
+    AS = AS - movmean(AS, 10000 * SL/300);       % smooth the noise
     disp(['mini of amp: ', num2str(A)]);
     % [tmp, ~, ~] = MakeMiniMatFS(D, SL, A, mode1, signal); % Pearsondist mean=1
-    [tmp, ~, ~] = MakeMiniMatFS1(D, SL, A, mode1); % Pearsondist mean=1
+    [tmp, ~, ~] = MakeMiniMatFS1(D, 300, A, mode1); % Pearsondist mean=1
+
+    tmp = downsample(tmp', 300/SL);
+    tmp = tmp';
     mininewForBench = -tmp;
+
 
     if mode2 == 1       % equal spacing
         MNtrace = reshape(mininewForBench', [1 numel(mininewForBench)]);
         MNpZtrace = MakeMNpZ(MNtrace,SL);% alternating minis and zeros
-        trueLoc = 71:600:71+600*(D/2-1);
+        trueLoc = (70*(SL/300)+1):2*SL:(70*(SL/300)+1)+2*SL*(D/2-1);
     else                % random spacing    
-        spacing = normrnd(500,200,[1,D-1]);
+        % spacing = normrnd(500,200,[1,D-1]);
+        spacing = normrnd(2*SL*(5/6), 2*SL/3, [1,D-1]);
         spacing = round(spacing);
         MNpZtrace(1:SL) = tmp(1,:);
-        trueLoc(1) = 71;
+        trueLoc(1) = (70*(SL/300)+1);
         for i = 2:1:D
-            MNpZtrace = MNpZtrace(1:trueLoc(i-1)+SL-71);
-            MNpZtrace = cat(2,MNpZtrace,zeros(1,SL-71+spacing(i-1)));
-            MNpZtrace(trueLoc(i-1)+spacing(i-1)-70:trueLoc(i-1)+spacing(i-1)+SL-71) = MNpZtrace(trueLoc(i-1)+spacing(i-1)-70:trueLoc(i-1)+spacing(i-1)+SL-71) + tmp(i,:);
+            MNpZtrace = MNpZtrace(1:trueLoc(i-1)+SL-(70*(SL/300)+1));
+            MNpZtrace = cat(2,MNpZtrace,zeros(1,SL-(70*(SL/300)+1)+spacing(i-1)));
+            MNpZtrace(trueLoc(i-1)+spacing(i-1)-(70*(SL/300)):trueLoc(i-1)+spacing(i-1)+SL-(70*(SL/300)+1)) = MNpZtrace(trueLoc(i-1)+spacing(i-1)-(70*(SL/300)):trueLoc(i-1)+spacing(i-1)+SL-(70*(SL/300)+1)) + tmp(i,:);
             trueLoc(i) = trueLoc(i-1) + spacing(i-1);
         end
         MNpZtrace = -MNpZtrace;
@@ -70,17 +75,25 @@ function [TPR,FDR,FNR,TPLoc,FPLoc,FNLoc,MNpZtrace2,ASmod2,trueLoc,FF] = genROC5(
                                % FIND CV PEAKS
                  [~,pks,~,~]=findpeaks...
                      (CVtmp,'MinPeakDistance', mpd,'MinPeakProminence',NNList(NN),'MinPeakWidth',minpeakwidth);
+                 pks = pks(pks < minL - (70*(SL/300)));
                  Pk_list = [Pk_list, pks]; % add pk to list
                  numel(Pk_list)
+                 Pk_list_sorted = sort(Pk_list); 
+                 for n = 2:1:numel(Pk_list_sorted)
+                    if Pk_list_sorted(n) - Pk_list_sorted(n-1) < 5
+                        disp(Pk_list_sorted(n));
+                        disp(Pk_list_sorted(n-1));
+                    end
+                 end
              
                             % SUBTRACT DETECTED MINI FROM TRACE
                      % can for loop be replaced by faster lines??
                      % is this generally applicable to all signals and noise??
                 if ~isempty(pks)
                     for n = 1:numel(pks)
-                        inval = pks(n)-50+70:pks(n)+70+100;
+                        inval = pks(n)-(50*SL/300*2)+(70*(SL/300)):pks(n)+(70*(SL/300))+(100*SL/300*2);
                         tmp(inval) = 0;   %zero peak
-                        tmp(inval+100) = ASmod2(1:numel(inval)); %set trace after mini peak to noise values
+                        tmp(inval+100*SL/300*2) = ASmod2(1:numel(inval)); %set trace after mini peak to noise values
                     end
                 end
              
@@ -88,21 +101,22 @@ function [TPR,FDR,FNR,TPLoc,FPLoc,FNLoc,MNpZtrace2,ASmod2,trueLoc,FF] = genROC5(
                 % f = figure; 
                 f.OuterPosition = [10,900-POS,2200,500 ];
                 POS = POS + 300;
-                plot(tmp1(71:end));
+                plot(tmp1((70*(SL/300)+1):end));
                 hold on; 
-                plot(tmp(71:end));
+                plot(tmp((70*(SL/300)+1):end));
                 plot(10 * CVtmp(1:end))
-                scatter(Pk_list, tmp1(Pk_list+71), 'filled');
+                scatter(Pk_list, tmp1(Pk_list+(70*(SL/300)+1)), 'filled');
                 lastTL = numel(find(trueLoc < numel(tmp1))); %last true location
-                scatter(trueLoc(1:lastTL)-70,tmp1(trueLoc(1:lastTL)-70),'filled','black')
+                scatter(trueLoc(1:lastTL)-(70*(SL/300)),tmp1(trueLoc(1:lastTL)-(70*(SL/300))),'filled','black')
                 F{iteration} = f;
-                % pause
                 close all
+                % pause
                 disp([num2str(numel(pks)), ' peaks are found in iteration ', num2str(iteration)]);
             end
+
             F = F(1:iteration);
             
-            Pk_list1=sort(Pk_list+71); % offset detected locations to compare to true locations
+            Pk_list1=sort(Pk_list+(70*(SL/300)+1)); % offset detected locations to compare to true locations
  
             AA = ismembertol(Pk_list1,trueLoc,timeBeAf,'DataScale',1); % are detected minis within 40 locations of true locations?
             lastTL = numel(find(trueLoc<numel(tmp1))); %last true location in trace
@@ -110,6 +124,10 @@ function [TPR,FDR,FNR,TPLoc,FPLoc,FNLoc,MNpZtrace2,ASmod2,trueLoc,FF] = genROC5(
              
             TP = sum(AA == 1);
             TPr = TP / lastTL; %true pos rate = TP/total minis
+            if TPr > 1
+
+                disp("error");
+            end
             FP = sum(AA == 0);
             FDr = FP / numel(Pk_list1);  %false detection rate= % detected minis not TP
             FN = sum(BB == 0);
