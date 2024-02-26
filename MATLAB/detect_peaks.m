@@ -4,22 +4,31 @@
 wd = matlab.desktop.editor.getActive;
 wd = fileparts(wd.Filename);
 cd(wd);
-% addpath 'helper_functions';
+addpath 'helper_functions';
 [fileName,filePath] = uigetfile('*.abf');
 
-load([wd,'/pre_trained_networks/trained_net.mat']);     % load trainedNetN
-
 % load the data 
-trace = abfload([filePath, fileName]);  % select the data you want to run
-trace = trace - movmean(trace, 10000);  % take out slow data deviations
+[trace, si, h] = abfload([filePath, fileName]);  % select the data you want to run 
+sampling_freq = 1 / si * 10^6;
+trace = trace - movmean(trace, sampling_freq);  % take out slow data deviations
 
-%% 2. load the noise file. 
+if sampling_freq == 10000
+    load([wd,'/pre_trained_networks/trained_net_10k.mat']);     % load trainedNetN
+elseif sampling_freq == 2000
+    load([wd,'/pre_trained_networks/trained_net_2k.mat']);     % load trainedNetN
+end
 
-load([wd, '/noise_files/2022_02_28_0000_noise.mat']);
-ASnoise = ASnoise * 2.5;        % scale noise by 2.5
+
+% create the noise file. choose random interval of size 10 from the trace. 
+% concatenate 1000 times to achieve full noise trace
+randomS = floor(rand() * (size(trace, 1) - 11));
+randInterval = trace(randomS: randomS + 9);
+randInterval = randInterval - mean(randInterval);
+
+ASnoise = repmat(randInterval', 1, 1000);
 noiseSD = std(ASnoise);
 
-%% 3. find peaks
+%% 2. find peaks
 
 % INITIALIZE
 dataLength = size(trace, 1);       % total length of the trace 
@@ -29,7 +38,7 @@ TN = trainedNet;               % trained neural network
 pks = 1;                        % store the found peaks in each iteration                                    
 Pk_list = [];                   % store the found peaks across all iterations 
 POS = 0;                        % parameter for plotting figures
-SL = 300;                       % sweeping length. number of data points for one peak
+SL = floor(300 * (sampling_freq / 10000)); % sweeping length. number of data points for one peak
 mpd = 4;                        % minimum peak distance   
 mpw = 3;                        % minimum peak width
 Nn = ASnoise;                   % value to set the found peaks to after each iteration
@@ -42,11 +51,11 @@ while ~isempty(pks)
     CV = TN(MakeCircMatData(SL, smoothedTrace));
     CV = CV(1,:);
     CV(CV < 0) = 0;
-    CV = movmean(CV, 10);
+    CV = movmean(CV, 50);
  
     % FIND CV PEAKS
     [~,pks,~,~]=findpeaks...
-        (CV,'MinPeakDistance', mpd,'MinPeakProminence',.9,'MinPeakWidth',mpw);
+        (CV,'MinPeakDistance', mpd,'MinPeakProminence',0.2,'MinPeakWidth',mpw);
     Pk_list = [Pk_list, pks]; % add peaks found to list
  
     % SUBTRACT DETECTED MINI FROM TRACE
@@ -67,11 +76,15 @@ while ~isempty(pks)
     plot(smoothedTrace(71:end));
     plot(10 * CV(1:end));
     scatter(Pk_list, originalTrace(Pk_list+71), 'filled');
-    disp([num2str(numel(pks)), ' peaks are found in iteration ', num2str(i)]);
+    disp([num2str(numel(pks)), ' peak(s) found in iteration ', num2str(i)]);
+    disp(pks);
     i = i + 1;
+    if i > 11
+        break;
+    end
     numPeakTable = [numPeakTable; [numel(pks), numel(Pk_list)]];
 end
 
-%% 4. save the result
+%% 3. save the result
 
 uisave({'numPeakTable', 'trace', 'Pk_list'});

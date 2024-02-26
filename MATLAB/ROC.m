@@ -5,7 +5,7 @@ wd = fileparts(wd.Filename);
 cd(wd);
 addpath 'helper_functions';
 
-load([wd,'/pre_trained_networks/trained_net.mat']);     % load trainedNetN
+load([wd,'/pre_trained_networks/trained_net_10k.mat']);     % load trainedNetN
 
 % set the parameters
 D = 1000;   % number of synthetic peaks in the test trace
@@ -21,7 +21,7 @@ timeBeAf = 10*2;        % time window about peak to be considered a true positiv
 thresholdList = [0.1,0.2,0.4,0.6,0.7,0.75,0.8,0.85,0.9,0.95,0.99,0.999]; % thresholds to create ROC
 smoothingList = [1,3,10,20,30,40,50,60,70,80];                           % smoothings to create ROC
 
-noiseScale = 2.5;       % scaling for the noise trace                                                                                     
+noiseScale = 4;       % scaling for the noise trace                                                                                     
 
 % select the noise file to be used for testing
 [fileName,filePath] = uigetfile('*.mat');
